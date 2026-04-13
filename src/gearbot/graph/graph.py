@@ -1,25 +1,22 @@
 from langgraph.graph import StateGraph, START, END
-from core import agent_node, browser_node, AgentState
+from core import agent_node, AgentState
 
 def create_web_graph():
     workflow = StateGraph(AgentState)
     
-    # Añadir nodos
     workflow.add_node("agent", agent_node)
-    workflow.add_node("browser", browser_node)
+    workflow.add_node("tools", tools_node)
     
-    # Edges
     workflow.add_edge(START, "agent")
     
-    # Después del agente, decidimos si ir al navegador o terminar
+    # Routing inteligente: si hay tool calls → ejecuta tools, si no → termina
     workflow.add_conditional_edges(
         "agent",
-        lambda state: "browser" if "navega" in state.messages[-1].content.lower() 
-                                 or "scrapea" in state.messages[-1].content.lower() 
-                                 or "ve a" in state.messages[-1].content.lower() 
-                                 else END
+        tools_condition,
+        {"tools": "tools", END: END}
     )
     
-    workflow.add_edge("browser", "agent")  # Volver al agente después de la acción
+    # Después de ejecutar tools, vuelve al agente
+    workflow.add_edge("tools", "agent")
     
     return workflow.compile()
