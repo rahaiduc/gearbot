@@ -1,51 +1,53 @@
 from langchain_xai import ChatXAI
-from langchain_core.messages import SystemMessage, HumanMessage
-from .browser import browser_manager
-from .state import AgentState
-
+from langchain_core.messages import SystemMessage
+from state import AgentState
+from tools.web import tools
 llm = ChatXAI(model="grok-4", temperature=0)
 
 SYSTEM_PROMPT = SystemMessage(
-    content="""Eres un agente web experto y cuidadoso.
-Puedes navegar, scrapear, hacer clic y rellenar formularios.
-Antes de realizar acciones destructivas o de registro/compra, pide confirmación al usuario.
-Sé preciso con los selectores CSS o XPath cuando sea necesario.
-Siempre describe qué vas a hacer antes de hacerlo."""
+    content="""Eres un agente web experto llamado Grok.
+Tu objetivo es ayudar al usuario a navegar, scrapear información y realizar acciones en páginas web.
+Usa las herramientas disponibles de forma precisa.
+Antes de realizar acciones importantes (click en botones de compra, registro, envío de formularios), pide confirmación al usuario.
+Sé claro y describe qué vas a hacer."""
 )
 
-async def agent_node(state: AgentState) -> AgentState:
-    """Nodo principal: el LLM decide qué hacer"""
+async def agent_node(state: AgentState):
+    """Nodo que llama al LLM con tool calling"""
     messages = [SYSTEM_PROMPT] + list(state.messages)
     
-    response = await llm.ainvoke(messages)
+    # Bind tools al LLM
+    llm_with_tools = llm.bind_tools(tools)
     
-    return {
-        "messages": [response],
-        "last_action": "thinking"
-    }
+    response = await llm_with_tools.ainvoke(messages)
+    
+    return {"messages": [response]}
 
 
-async def browser_node(state: AgentState) -> AgentState:
-    """Nodo que ejecuta acciones en el navegador"""
+async def tools_node(state: AgentState):
+    """Nodo que ejecuta las herramientas del navegador"""
+    # LangGraph tiene ToolNode, pero como usamos async, lo hacemos manual por ahora
     last_message = state.messages[-1]
     
-    # Aquí parseamos la intención del LLM (esto se puede mejorar mucho después)
-    content = last_message.content.lower()
+    if not last_message.tool_calls:
+        return {}
     
-    try:
-        if "ve a " in content or "navega a " in content or "goto " in content:
-            url = content.split("a ")[-1].strip().split()[0]
-            if not url.startswith("http"):
-                url = "https://" + url
-            result = await browser_manager.navigate(url)
-            return {"current_url": result.get("url"), "page_title": result.get("title")}
+    tool_results = []
+    
+    for tool_call in last_message.tool_calls:
+        tool_name = tool_call["name"]
+        args = tool_call["args"]
         
-        elif "scrapea" in content or "extrae" in content or "lee" in content:
-            text = await browser_manager.page.inner_text("body")
-            return {"messages": [HumanMessage(content=f"Contenido extraído: {text[:1000]}...")]}
-        
-        else:
-            return {"error": "No entendí la acción solicitada"}
-            
-    except Exception as e:
-        return {"error": str(e)}
+        # Ejecutar la herramienta correspondiente
+        for tool in tools:
+            if tool.name == tool_name:
+                result = await tool.ainvoke(args)
+                tool_results.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call["id"],
+                    "name": tool_name,
+                    "content": result
+                })
+                break
+    
+    return {"messages": tool_results}
