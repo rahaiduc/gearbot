@@ -1,8 +1,7 @@
 import asyncio
 from rich.console import Console
 from rich.prompt import Prompt
-from .graph import create_web_graph
-from .browser import browser_manager
+from src.gearbot import create_web_graph, browser_manager
 
 console = Console()
 

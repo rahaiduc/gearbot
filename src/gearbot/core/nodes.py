@@ -1,9 +1,9 @@
-from langchain_openai import ChatOpenAI
+from langchain_xai import ChatXAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from .browser import browser_manager
 from .state import AgentState
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
+llm = ChatXAI(model="grok-4", temperature=0)
 
 SYSTEM_PROMPT = SystemMessage(
     content="""Eres un agente web experto y cuidadoso.
