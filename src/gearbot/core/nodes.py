@@ -29,5 +29,4 @@ async def agent_node(state: AgentState):
     return {"messages": [response]}
 
 
-# Nodo de herramientas (usamos el ToolNode prebuilt de LangGraph)
 tools_node = ToolNode(tools)

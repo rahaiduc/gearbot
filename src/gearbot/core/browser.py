@@ -35,7 +35,7 @@ class BrowserManager:
         if self.browser:
             await self.browser.close()
 
-    # ==================== MÉTODOS USADOS POR LAS TOOLS ====================
+    # ==================== Tools methods ====================
 
     async def navigate(self, url: str) -> dict:
         """Navega a una URL"""
@@ -45,7 +45,7 @@ class BrowserManager:
         return await self.get_current_page_info()
 
     async def extract_text(self, selector: str = "body") -> str:
-        """Extrae el texto de un selector"""
+        """Extrae el texto de un pagina"""
         return await self.page.inner_text(selector)
 
     async def click(self, selector: str):
