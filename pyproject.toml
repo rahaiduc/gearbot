@@ -14,4 +14,12 @@ dependencies = [
     "rich>=15.0.0",
 ]
 [project.scripts]
-gearbot = "gearbot.src.gearbot.__main__:main"
+gearbot = "gearbot.__main__:main"
+
+# === Configuración importante para src layout ===
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.uv]
+package = true

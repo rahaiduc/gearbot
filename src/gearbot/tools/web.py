@@ -1,7 +1,5 @@
-from langchain_xai import ChatXAI
-from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
-from core import browser_manager
+from gearbot.core.browser import browser_manager
 
 # ==================== WEB TOOLS ====================
 

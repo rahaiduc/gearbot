@@ -1,8 +1,8 @@
 from langchain_xai import ChatXAI
 from langgraph.prebuilt import ToolNode
 from langchain_core.messages import SystemMessage
-from state import AgentState
-from tools.web import tools
+from .state import AgentState
+from gearbot.tools import tools
 import os
 from dotenv import load_dotenv
 

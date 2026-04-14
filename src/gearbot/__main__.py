@@ -5,8 +5,8 @@ from rich.console import Console
 from rich.prompt import Prompt
 from dotenv import load_dotenv
 
-from graph import create_web_graph
-from core import browser_manager
+from gearbot.graph import create_web_graph
+from gearbot.core import browser_manager
 
 load_dotenv()
 console = Console()

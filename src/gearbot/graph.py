@@ -1,7 +1,6 @@
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import tools_condition
-from gearbot.core import agent_node, tools_node
-from gearbot.core import AgentState
+from gearbot.core import agent_node, tools_node, AgentState
 
 def create_web_graph():
     workflow = StateGraph(AgentState)

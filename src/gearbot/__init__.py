@@ -1,2 +1,4 @@
-from .core import BrowserManager, AgentState, agent_node
-from .graph import create_web_graph
+# src/gearbot/__init__.py
+"""GearBot - Agente Web con Grok"""
+
+__version__ = "0.1.0"
