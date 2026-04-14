@@ -3,7 +3,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from core import browser_manager
 
-# ==================== HERRAMIENTAS DEL NAVEGADOR ====================
+# ==================== WEB TOOLS ====================
 
 @tool
 async def navigate_to(url: str) -> str:

@@ -1,3 +1,3 @@
-from .browser import browser_manager
+from .browser import BrowserManager
 from .state import AgentState
-from .nodes import agent_node
+from .nodes import agent_node, tools_node

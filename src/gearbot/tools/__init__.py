@@ -1,1 +1,1 @@
-from .web import navigate, click, extract_text, fill_form, submit_form, tools
+from .web import navigate_to, extract_page_content, click_element, fill_field, get_page_info

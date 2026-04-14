@@ -13,3 +13,5 @@ dependencies = [
     "pydantic>=2.12.5",
     "rich>=15.0.0",
 ]
+[project.scripts]
+gearbot = "gearbot.src.gearbot.__main__:main"
