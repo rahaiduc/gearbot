@@ -7,6 +7,7 @@ load_dotenv()
 
 class BrowserManager:
     def __init__(self):
+        self.playwright = None
         self.browser = None
         self.context = None
         self.page: Optional[Page] = None
@@ -18,8 +19,8 @@ class BrowserManager:
         if headless is None:
             headless = self.headless
 
-        p = await async_playwright().start()
-        self.browser = await p.chromium.launch(
+        self.playwright = await async_playwright().start()
+        self.browser = await self.playwright.chromium.launch(
             headless=headless,
             slow_mo=300 if not headless else 0
         )
@@ -32,8 +33,30 @@ class BrowserManager:
 
     async def stop(self):
         """Cierra el navegador"""
-        if self.browser:
-            await self.browser.close()
+        try:
+            if self.page:
+                await self.page.close()
+                self.page = None
+        except Exception:
+            pass
+        try:
+            if self.context:
+                await self.context.close()
+                self.context = None
+        except Exception:
+            pass
+        try:
+            if self.browser:
+                await self.browser.close()
+                self.browser = None
+        except Exception:
+            pass
+        if hasattr(self, 'playwright') and self.playwright:
+            try:
+                await self.playwright.stop()
+                self.playwright = None
+            except Exception:
+                pass
 
     # ==================== Tools methods ====================
 
