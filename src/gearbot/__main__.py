@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.prompt import Prompt
+from rich.panel import Panel
+from rich import box
 
 from gearbot.graph import create_web_graph
 from gearbot.core.browser import browser_manager
@@ -34,12 +36,43 @@ async def main():
                 console.print("[yellow]Cerrando agente...[/yellow]")
                 break
 
-            console.print("[dim]Procesando...[/dim]")
+            console.print("[dim]Procesando...[/dim]\n")
 
-            result = await graph.ainvoke({"messages": [("user", user_input)]})
+            last_state = None
+            previous_url = None
 
-            final_message = result["messages"][-1].content
-            console.print(f"[bold magenta]Grok:[/bold magenta] {final_message}\n")
+            async for state in graph.astream(
+                {"messages": [("user", user_input)]},
+                stream_mode="values"
+            ):
+                last_state = state
+                current_url = state.get("current_url")
+
+                # Solo mostramos el panel si la URL cambió o es la primera vez que tiene datos
+                if current_url and current_url != previous_url:
+                    console.print(Panel(
+                        f"[cyan]URL:[/cyan] {current_url}\n"
+                        f"[cyan]Título:[/cyan] {state.get('page_title') or '—'}\n"
+                        f"[cyan]Última acción:[/cyan] {state.get('last_action') or 'Ninguna'}\n"
+                        f"[cyan]Error:[/cyan] {state.get('error') or 'Ninguno'}",
+                        title="[bold blue]Estado actualizado[/bold blue]",
+                        border_style="green",
+                        box=box.ROUNDED
+                    ))
+                    previous_url = current_url
+
+                # También mostramos si hay error
+                elif state.get("error"):
+                    console.print(Panel(
+                        f"[red]Error:[/red] {state.get('error')}",
+                        title="Estado del agente",
+                        border_style="red"
+                    ))
+
+            # Respuesta final de Grok
+            if last_state and last_state.get("messages"):
+                final_message = last_state["messages"][-1].content
+                console.print(f"\n[bold magenta]Grok:[/bold magenta] {final_message}\n")
 
         except Exception as e:
             console.print(f"[red]Error durante la ejecución: {str(e)}[/red]")
