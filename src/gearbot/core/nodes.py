@@ -10,8 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuración del modelo desde .env
-GROK_MODEL = os.getenv("GROK_MODEL", "grok-4")
+GROK_MODEL = os.getenv("GROK_MODEL", "grok-4-fast")
 
 llm = ChatXAI(model=GROK_MODEL, temperature=0)
 
@@ -35,11 +34,9 @@ async def agent_node(state: AgentState):
 async def tools_node(state: AgentState):
     """ToolNode personalizado que actualiza el estado del navegador"""
     
-    # 1. Ejecutar las tools normalmente
     base_tool_node = ToolNode(tools)
     result = await base_tool_node.ainvoke(state)
 
-    # 2. Actualizar el estado según qué tool se ejecutó
     updates = {}
     tool_messages = [m for m in result.get("messages", []) if isinstance(m, ToolMessage)]
 
@@ -49,7 +46,6 @@ async def tools_node(state: AgentState):
 
         try:
             if tool_name == "navigate_to":
-                # Obtener información real y actualizada del navegador
                 page_info = await browser_manager.get_current_page_info()
                 updates = {
                     "current_url": page_info["url"],
@@ -73,12 +69,9 @@ async def tools_node(state: AgentState):
                     "error": None
                 }
 
-            # Puedes añadir más tools aquí en el futuro (extract_page_content, etc.)
-
         except Exception as e:
             updates["error"] = f"Error al actualizar estado: {str(e)}"
 
-    # 3. Devolver Command (forma recomendada en LangGraph)
     return Command(
         update={
             **updates,
