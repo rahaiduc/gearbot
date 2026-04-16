@@ -1,39 +1,55 @@
+"""
+    Core nodes for the GearBot agent, including the main agent node and a custom tools node that
+    updates browser state.
+"""
 from langchain_xai import ChatXAI
-from langgraph.prebuilt import ToolNode
 from langchain_core.messages import SystemMessage, ToolMessage
+from langgraph.prebuilt import ToolNode
 from langgraph.types import Command
-from .state import AgentState
 from gearbot.tools import tools
+from gearbot.config import XAI_API_KEY, GROK_MODEL
+from .state import AgentState
 from .browser import browser_manager
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-GROK_MODEL = os.getenv("GROK_MODEL", "grok-4-fast")
-
-llm = ChatXAI(model=GROK_MODEL, temperature=0)
+llm = ChatXAI(model=GROK_MODEL, api_key=XAI_API_KEY, temperature=0)
 
 SYSTEM_PROMPT = SystemMessage(
-    content="""Eres Grok, un agente web experto y cuidadoso.
-Puedes navegar por internet, extraer información, hacer clic y rellenar formularios.
-Sé preciso con los selectores.
-Antes de realizar acciones importantes (como registrarte, comprar o enviar datos), pide confirmación explícita al usuario."""
+    content="""
+    Eres Grok, un agente web experto y cuidadoso.
+    Puedes navegar por internet, extraer información, hacer clic y rellenar formularios.
+    Sé preciso con los selectores.
+    Antes de realizar acciones importantes (como registrarte, comprar o enviar datos), pide confirmación
+    explícita al usuario.
+    """
 )
 
-# ==================== NODO DEL AGENTE ====================
 async def agent_node(state: AgentState):
+    """Agent node that processes messages and interacts with tools, while maintaining conversation 
+    context.
+
+    Args:
+        state: The current state of the agent, including conversation history and any relevant data.
+
+    Returns:
+        A Command object containing the updated state and any messages to be sent back to the user.
+    """
     llm_with_tools = llm.bind_tools(tools)
     messages = [SYSTEM_PROMPT] + list(state.messages)
-    
+
     response = await llm_with_tools.ainvoke(messages)
     return {"messages": [response]}
 
-
-# ==================== NODO DE TOOLS PERSONALIZADO ====================
 async def tools_node(state: AgentState):
-    """ToolNode personalizado que actualiza el estado del navegador"""
+    """Tools node that processes tool invocations and updates the agent's state based on the 
+    results.
     
+    Args:
+        state: The current state of the agent, including conversation history and any relevant data.
+
+    Returns:
+        A Command object containing the updated state and any messages to be sent back to the user.
+    """
+
     base_tool_node = ToolNode(tools)
     result = await base_tool_node.ainvoke(state)
 

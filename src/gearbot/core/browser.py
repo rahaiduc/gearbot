@@ -1,21 +1,38 @@
-from playwright.async_api import async_playwright, Page
-from typing import Optional
+"""Browser manager using Playwright for web automation tasks."""
 import os
+from typing import Optional
 from dotenv import load_dotenv
+from playwright.async_api import async_playwright, Page
+from gearbot.config import NAVIGATION_TIMEOUT
 
 load_dotenv()
 
 class BrowserManager:
+    """Browser manager for handling Playwright browser instances and operations.
+
+    Attributes:
+        playwright: The Playwright instance.
+        browser: The browser instance.
+        context: The browser context.
+        page: The current page instance.
+        headless: Whether to run the browser in headless mode.
+        timeout: Default navigation timeout in milliseconds.
+    """
     def __init__(self):
+        """Initializes the BrowserManager with default settings."""
         self.playwright = None
         self.browser = None
         self.context = None
         self.page: Optional[Page] = None
         self.headless = os.getenv("BROWSER_HEADLESS", "false").lower() == "true"
-        self.timeout = int(os.getenv("NAVIGATION_TIMEOUT", 30000))
+        self.timeout = int(NAVIGATION_TIMEOUT)
 
     async def start(self, headless: bool = None):
-        """Inicia el navegador"""
+        """Starts the browser instance.
+
+         Args:
+            headless: Optional override for headless mode. If None, uses the default configuration.
+        """
         if headless is None:
             headless = self.headless
 
@@ -32,7 +49,7 @@ class BrowserManager:
         self.page.set_default_timeout(self.timeout)
 
     async def stop(self):
-        """Cierra el navegador"""
+        """Closes the browser instance and cleans up resources."""
         try:
             if self.page:
                 await self.page.close()
@@ -61,26 +78,53 @@ class BrowserManager:
     # ==================== Tools methods ====================
 
     async def navigate(self, url: str) -> dict:
-        """Navega a una URL"""
+        """Navigates to a specified URL and returns current page information.
+
+        Args:
+            url: The URL to navigate to.
+        Returns:
+            A dictionary containing the current page's URL, title, and a content preview.
+        """
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
         await self.page.goto(url, wait_until="domcontentloaded")
         return await self.get_current_page_info()
 
     async def extract_text(self, selector: str = "body") -> str:
-        """Extrae el texto de un pagina"""
+        """Extracts text content from a specified element.
+
+        Args:
+            selector: The HTML selector for the element from which to extract text.
+
+        Returns:
+            The text content of the specified element.
+        """
         return await self.page.inner_text(selector)
 
     async def click(self, selector: str):
-        """Hace clic en un elemento"""
+        """Clicks an element specified by the selector.
+
+        Args:
+            selector: The HTML selector for the element to click.
+        """
         await self.page.click(selector)
 
     async def fill(self, selector: str, value: str):
-        """Rellena un campo de formulario"""
+        """Fills an input field specified by the selector with a given value.
+        
+        Args:
+            selector: The HTML selector for the input field to fill.
+            value: The value to fill the input field with.
+        """
         await self.page.fill(selector, value)
 
     async def get_current_page_info(self) -> dict:
-        """Devuelve información actual de la página"""
+        """Retrieves information about the current page, including URL, title, and a 
+        content preview.
+        
+        Returns:
+            A dictionary containing the current page's URL, title, and a content preview.
+        """
         return {
             "url": self.page.url,
             "title": await self.page.title(),
@@ -88,5 +132,5 @@ class BrowserManager:
         }
 
 
-# Instancia global
+# Global instance of the BrowserManager to be used across the application
 browser_manager = BrowserManager()

@@ -1,23 +1,23 @@
+"""GearBot - Web Agent"""
 import asyncio
-import os
-from dotenv import load_dotenv
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.panel import Panel
 from rich import box
-
 from gearbot.graph import create_web_graph
 from gearbot.core.browser import browser_manager
-
-load_dotenv()
+from gearbot.config import BROWSER_HEADLESS, GROK_MODEL
 
 console = Console()
 
 async def main():
-    """Función principal del agente"""
+    """Main function to run the GearBot agent, handling user input and displaying agent
+    responses and state updates.
+    """
     console.print("[bold green]🚀 GearBot - Agente Web con Grok listo![/bold green]")
-    console.print(f"Modelo: [cyan]{os.getenv('GROK_MODEL', 'grok-4')}[/cyan]")
-    console.print(f"Modo navegador: [yellow]{'Headless' if os.getenv('BROWSER_HEADLESS', 'false').lower() == 'true' else 'Visible'}[/yellow]\n")
+    console.print(f"Modelo: [cyan]{GROK_MODEL}[/cyan]")
+    console.print(f"Modo navegador: [yellow]{'Headless' if BROWSER_HEADLESS.lower() == 'true'
+                                             else 'Visible'}[/yellow]\n")
 
     try:
         await browser_manager.start()
@@ -83,6 +83,7 @@ async def main():
 
 
 def run():
+    """Run the GearBot agent."""
     asyncio.run(main())
 
 if __name__ == "__main__":
