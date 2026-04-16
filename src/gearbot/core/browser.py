@@ -1,11 +1,7 @@
 """Browser manager using Playwright for web automation tasks."""
-import os
 from typing import Optional
-from dotenv import load_dotenv
 from playwright.async_api import async_playwright, Page
-from gearbot.config import NAVIGATION_TIMEOUT
-
-load_dotenv()
+from gearbot.config import NAVIGATION_TIMEOUT, BROWSER_HEADLESS
 
 class BrowserManager:
     """Browser manager for handling Playwright browser instances and operations.
@@ -24,7 +20,7 @@ class BrowserManager:
         self.browser = None
         self.context = None
         self.page: Optional[Page] = None
-        self.headless = os.getenv("BROWSER_HEADLESS", "false").lower() == "true"
+        self.headless = BROWSER_HEADLESS.lower() == "true"
         self.timeout = int(NAVIGATION_TIMEOUT)
 
     async def start(self, headless: bool = None):
