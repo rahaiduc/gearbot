@@ -33,28 +33,28 @@ async def main():
     """Main function to run the GearBot agent, handling user input and displaying agent
     responses and state updates.
     """
-    console.print("[bold green]🚀 GearBot - Agente Web con Grok listo![/bold green]")
-    console.print(f"Modelo: [cyan]{GROK_MODEL}[/cyan]")
-    console.print(f"Modo navegador: [yellow]{'Headless' if BROWSER_HEADLESS.lower() == 'true'
+    console.print("[bold green]🚀 GearBot - Web Agent Ready![/bold green]")
+    console.print(f"Model: [cyan]{GROK_MODEL}[/cyan]")
+    console.print(f"Browser Mode: [yellow]{'Headless' if BROWSER_HEADLESS.lower() == 'true'
                                              else 'Visible'}[/yellow]\n")
 
     try:
         await browser_manager.start()
-        console.print("[green]✅ Navegador iniciado correctamente.[/green]\n")
+        console.print("[green]✅ Browser started correctly.[/green]\n")
     except Exception as e:
-        console.print(f"[red]Error al iniciar navegador: {e}[/red]")
+        console.print(f"[red]Error starting browser: {e}[/red]")
         return
 
     graph = create_web_graph()
     try:
         while True:
-            user_input = Prompt.ask("[bold cyan]Tú[/bold cyan]")
+            user_input = Prompt.ask("[bold cyan]You[/bold cyan]")
 
             if user_input.lower() in ["salir", "exit", "q", "quit"]:
-                console.print("[yellow]Cerrando agente...[/yellow]")
+                console.print("[yellow]Closing agent...[/yellow]")
                 break
 
-            console.print("[dim]Procesando...[/dim]\n")
+            console.print("[dim]Processing...[/dim]\n")
 
             last_state = None
             previous_url = None
@@ -70,10 +70,10 @@ async def main():
                 if current_url and current_url != previous_url:
                     console.print(Panel(
                         f"[cyan]URL:[/cyan] {current_url}\n"
-                        f"[cyan]Título:[/cyan] {state.get('page_title') or '—'}\n"
-                        f"[cyan]Última acción:[/cyan] {state.get('last_action') or 'Ninguna'}\n"
-                        f"[cyan]Error:[/cyan] {state.get('error') or 'Ninguno'}",
-                        title="[bold blue]Estado actualizado[/bold blue]",
+                        f"[cyan]Title:[/cyan] {state.get('page_title') or '—'}\n"
+                        f"[cyan]Last Action:[/cyan] {state.get('last_action') or 'None'}\n"
+                        f"[cyan]Error:[/cyan] {state.get('error') or 'None'}",
+                        title="[bold blue]State Updated[/bold blue]",
                         border_style="green",
                         box=box.ROUNDED
                     ))
@@ -82,7 +82,7 @@ async def main():
                 elif state.get("error"):
                     console.print(Panel(
                         f"[red]Error:[/red] {state.get('error')}",
-                        title="Estado del agente",
+                        title="Agent State",
                         border_style="red"
                     ))
 
@@ -90,9 +90,9 @@ async def main():
                 final_message = last_state["messages"][-1].content
                 console.print(f"\n[bold magenta]Grok:[/bold magenta] {final_message}\n")
     except (KeyboardInterrupt, asyncio.CancelledError):
-        console.print("\n[yellow]Interrupción detectada. Cerrando agente...[/yellow]")
+        console.print("\n[yellow]Interrupt detected. Closing agent...[/yellow]")
     finally:
-        console.print("[dim]Cerrando navegador de forma segura...[/dim]")
+        console.print("[dim]Closing browser safely...[/dim]")
         try:
             await browser_manager.stop()
         except Exception:
@@ -103,11 +103,11 @@ def run():
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        console.print("\n[yellow]Ctrl+C detectado. Cerrando de forma limpia...[/yellow]")
+        console.print("\n[yellow]Ctrl+C detected. Closing cleanly...[/yellow]")
     except Exception as e:
         console.print(Panel(
-            f"[red]Error crítico inesperado: {e}[/red]",
-            title="Error fatal",
+            f"[red]Unexpected critical error: {e}[/red]",
+            title="Fatal Error",
             border_style="red"
         ))
         sys.exit(1)
