@@ -21,7 +21,8 @@ async def navigate_to(url: str) -> str:
 @tool
 async def extract_page_content(selector: str = "body") -> str:
     """Extract text content from the page using a HTML selector.
-    
+    For forms, it's useful to first extract content to understand the structure before interacting.
+    Useful to understand the structure of forms before interacting with them.
     Args:
         selector: The HTML selector to extract text from.
     Returns:
@@ -33,8 +34,15 @@ async def extract_page_content(selector: str = "body") -> str:
 
 @tool
 async def click_element(selector: str, description: str = "") -> str:
-    """Click on an element specified by a selector.
+    """Click any element on the page (buttons, links, checkboxes, etc.).
+    Some form fields maybe are required to be clicked.
     
+    Preferred selectors:
+    - text=Sign up, text=Login, text=Submit, text=Create account
+    - id=, name=, placeholder=, aria-label
+    
+    Use this to open modals, click buttons, links, or checkboxes. 
+
     Args:
         selector: The HTML selector for the element to click.
         description: A description of the element being clicked.
@@ -50,7 +58,11 @@ async def click_element(selector: str, description: str = "") -> str:
 
 @tool
 async def fill_field(selector: str, value: str, description: str = "") -> str:
-    """Fill a form field specified by a selector with a given value.
+    """Fill any input field, textarea, or dropdown in a form.
+    Some fields may require clicking, use click_element for those cases.
+    
+    You can fill any kind of form field. 
+    If the form is complex, first extract page content to understand its structure.
     
     Args:
         selector: The HTML selector for the field to fill.
@@ -68,7 +80,9 @@ async def fill_field(selector: str, value: str, description: str = "") -> str:
 
 @tool
 async def get_page_info() -> str:
-    """Get the current page information, including URL and title.
+    """Get current page information (URL and title).
+    
+    Use this when you need to confirm where you are before taking action.
     
     Returns:
         A string containing the current URL and page title.

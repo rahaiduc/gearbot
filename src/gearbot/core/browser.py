@@ -103,7 +103,11 @@ class BrowserManager:
         Args:
             selector: The HTML selector for the element to click.
         """
-        await self.page.click(selector)
+        if selector.startswith("text="):
+            await self.page.get_by_text(selector[5:]).click(timeout=10000)
+        else:
+            await self.page.wait_for_selector(selector, timeout=10000)
+            await self.page.click(selector)
 
     async def fill(self, selector: str, value: str):
         """Fills an input field specified by the selector with a given value.
