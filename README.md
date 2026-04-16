@@ -2,7 +2,7 @@
 
 **A lightweight, Grok-powered web agent that lives in your terminal.**
 
-GearBot lets you control a real browser using natural language. You talk to Grok, and it navigates, clicks, fills forms, extracts information — all while showing you exactly what's happening in real time.
+GearBot lets you control a real browser using natural language. You talk to Grok, and it navigates, clicks, fills forms, extracts information all while showing you exactly what's happening in real time.
 
 Built for developers who want a fast, controllable, and transparent web agent without the complexity of heavy frameworks.
 
@@ -15,11 +15,18 @@ Built for developers who want a fast, controllable, and transparent web agent wi
 - Supports both visible and headless browser modes
 - Smart tool calling with proper state management
 
+## Tech Stack
+- LLM: Grok (xAI) — grok-4-1-fast
+- Agent Framework: LangGraph + LangChain
+- Browser Automation: Playwright (async)
+- UI: Rich
+- Python: 3.12+
+
 ## Quick Start
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/gearbot.git
+git clone https://github.com/rahaiduc/gearbot.git
 cd gearbot
 
 # Install with uv (recommended)
@@ -46,29 +53,24 @@ Type exit, quit or press Ctrl+C to stop.
 ```
 
 ## Project Structure
-textgearbot/
-├── src/gearbot/
-│   ├── __main__.py          # Entry point
-│   ├── config.py
-│   ├── graph.py             # LangGraph definition
-│   └── core/
-│       ├── browser.py       # Playwright manager
-│       ├── agent_node.py
-│       ├── tools_node.py
-│       └── state.py
-├── tools/                   # LangChain tools
+
+```bash
+gearbot/
+├── src/
+│   └── gearbot/
+│       ├── __main__.py
+│       ├── graph.py                 
+│       ├── core/
+│       │   ├── browser.py           
+│       │   ├── nodes.py
+│       │   └── state.py             
+│       ├── tools/
+│       │   └── web.py
+│       └── config/  
+│           └── config.py
 ├── .env.example
 └── pyproject.toml
-
-## Tech Stack
-LLM: Grok (xAI)
-Agent Framework: LangGraph + LangChain
-Browser: Playwright (async)
-UI: Rich
-Python: 3.12+
-
-## Windows Notes
-This project includes specific handling for the common Event loop is closed warning that appears when shutting down Playwright on Windows. Everything should run cleanly.
+```
 ## Contributing
 Feel free to open issues or PRs. This is a personal/project tool that I'm actively using and improving.
 ## License
