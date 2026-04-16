@@ -45,27 +45,18 @@ async def tools_node(state: AgentState):
         tool_name = last_tool.name
 
         try:
-            if tool_name == "navigate_to":
+            if tool_name in ["navigate_to", "get_page_info"]:
                 page_info = await browser_manager.get_current_page_info()
                 updates = {
                     "current_url": page_info["url"],
                     "page_title": page_info["title"],
-                    "last_action": "navigate",
+                    "last_action": tool_name,
                     "error": None
                 }
 
             elif tool_name in ["click_element", "fill_field"]:
                 updates = {
                     "last_action": tool_name,
-                    "error": None
-                }
-
-            elif tool_name == "get_page_info":
-                page_info = await browser_manager.get_current_page_info()
-                updates = {
-                    "current_url": page_info["url"],
-                    "page_title": page_info["title"],
-                    "last_action": "get_page_info",
                     "error": None
                 }
 
