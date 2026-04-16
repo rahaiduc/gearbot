@@ -1,4 +1,5 @@
 """GearBot - Web Agent"""
+import sys
 import asyncio
 from rich.console import Console
 from rich.prompt import Prompt
@@ -9,6 +10,24 @@ from gearbot.core.browser import browser_manager
 from gearbot.config import BROWSER_HEADLESS, GROK_MODEL
 
 console = Console()
+
+if sys.platform == "win32":
+    from asyncio.proactor_events import _ProactorBasePipeTransport
+
+    def silence_event_loop_closed(func):
+        """Decorator to silence 'Event loop is closed' errors on Windows when the transport is 
+        garbage collected."""
+        def wrapper(self, *args, **kwargs):
+            try:
+                return func(self, *args, **kwargs)
+            except RuntimeError as e:
+                if str(e) != 'Event loop is closed':
+                    raise
+        return wrapper
+
+    _ProactorBasePipeTransport.__del__ = (
+        silence_event_loop_closed(_ProactorBasePipeTransport.__del__)
+    )
 
 async def main():
     """Main function to run the GearBot agent, handling user input and displaying agent
@@ -27,9 +46,8 @@ async def main():
         return
 
     graph = create_web_graph()
-
-    while True:
-        try:
+    try:
+        while True:
             user_input = Prompt.ask("[bold cyan]Tú[/bold cyan]")
 
             if user_input.lower() in ["salir", "exit", "q", "quit"]:
@@ -61,7 +79,6 @@ async def main():
                     ))
                     previous_url = current_url
 
-                # También mostramos si hay error
                 elif state.get("error"):
                     console.print(Panel(
                         f"[red]Error:[/red] {state.get('error')}",
@@ -69,22 +86,31 @@ async def main():
                         border_style="red"
                     ))
 
-            # Respuesta final de Grok
             if last_state and last_state.get("messages"):
                 final_message = last_state["messages"][-1].content
                 console.print(f"\n[bold magenta]Grok:[/bold magenta] {final_message}\n")
-
-        except Exception as e:
-            console.print(f"[red]Error durante la ejecución: {str(e)}[/red]")
-
-    await browser_manager.stop()
-    console.print("[green]Navegador cerrado. ¡Hasta luego![/green]")
-
-
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        console.print("\n[yellow]Interrupción detectada. Cerrando agente...[/yellow]")
+    finally:
+        console.print("[dim]Cerrando navegador de forma segura...[/dim]")
+        try:
+            await browser_manager.stop()
+        except Exception:
+            pass
 
 def run():
     """Run the GearBot agent."""
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Ctrl+C detectado. Cerrando de forma limpia...[/yellow]")
+    except Exception as e:
+        console.print(Panel(
+            f"[red]Error crítico inesperado: {e}[/red]",
+            title="Error fatal",
+            border_style="red"
+        ))
+        sys.exit(1)
 
 if __name__ == "__main__":
     run()
