@@ -20,9 +20,12 @@ async def navigate_to(url: str) -> str:
 
 @tool
 async def extract_page_content(selector: str = "body") -> str:
-    """Extract text content from the page using a HTML selector.
-    For forms, it's useful to first extract content to understand the structure before interacting.
-    Useful to understand the structure of forms before interacting with them.
+    """Extract visible text content from the page or a specific selector.
+    
+    Especially useful BEFORE filling any form to understand:
+    - Which fields exist (username, email, password, etc.)
+    - Their labels, placeholders and names
+    - The overall form structure
     Args:
         selector: The HTML selector to extract text from.
     Returns:
@@ -58,7 +61,7 @@ async def click_element(selector: str, description: str = "") -> str:
 
 @tool
 async def fill_field(selector: str, value: str, description: str = "") -> str:
-    """Fill any input field, textarea, or dropdown in a form.
+    """Fill one field, textarea, or dropdown in a form.
     Some fields may require clicking, use click_element for those cases.
     
     Args:
@@ -76,11 +79,11 @@ async def fill_field(selector: str, value: str, description: str = "") -> str:
 
 @tool
 async def fill_form(fields: dict, description: str = "") -> str:
-    """Fill an entire form using a dictionary of field selectors and values.
+    """Use this first when filling an entire form using a dictionary of field selectors and values.
     
     This is the recommended tool for filling forms (registration, login, 
     checkout, contact forms, etc.).
-    
+    Some fields may require clicking, use click_element for those cases.
     Args:
         fields: A dictionary where keys are selectors and values are the data to fill.
                 Example: {

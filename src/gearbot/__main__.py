@@ -76,25 +76,6 @@ async def main():
                         border_style="green",
                         box=box.ROUNDED
                     ))
-                # Solo mostramos el panel si la URL cambió o es la primera vez que tiene datos
-                """if current_url and current_url != previous_url:
-                    console.print(Panel(
-                        f"[cyan]URL:[/cyan] {current_url}\n"
-                        f"[cyan]Title:[/cyan] {state.get('page_title') or '—'}\n"
-                        f"[cyan]Last Action:[/cyan] {state.get('last_action') or 'None'}\n"
-                        f"[cyan]Error:[/cyan] {state.get('error') or 'None'}",
-                        title="[bold blue]State Updated[/bold blue]",
-                        border_style="green",
-                        box=box.ROUNDED
-                    ))
-                    previous_url = current_url
-
-                elif state.get("error"):
-                    console.print(Panel(
-                        f"[red]Error:[/red] {state.get('error')}",
-                        title="Agent State",
-                        border_style="red"
-                    ))"""
 
             if last_state and last_state.get("messages"):
                 final_message = last_state["messages"][-1].content
