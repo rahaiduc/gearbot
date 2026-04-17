@@ -116,7 +116,16 @@ class BrowserManager:
             selector: The HTML selector for the input field to fill.
             value: The value to fill the input field with.
         """
-        await self.page.fill(selector, value)
+        try:
+            if selector.startswith("text="):
+                # Support text= selector
+                await self.page.get_by_text(selector[5:]).fill(value)
+            else:
+                await self.page.wait_for_selector(selector, timeout=8000)
+                await self.page.fill(selector, value)
+        except Exception:
+        # Fallback: try anyway
+            await self.page.fill(selector, value)
 
     async def get_current_page_info(self) -> dict:
         """Retrieves information about the current page, including URL, title, and a 

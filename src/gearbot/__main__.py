@@ -61,6 +61,7 @@ async def main():
 
             async for state in graph.astream(
                 {"messages": [("user", user_input)]},
+                {"configurable": {"thread_id": "1"}},
                 stream_mode="values"
             ):
                 last_state = state
