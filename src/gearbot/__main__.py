@@ -8,6 +8,8 @@ from rich import box
 from gearbot.graph import create_web_graph
 from gearbot.core.browser import browser_manager
 from gearbot.config import BROWSER_HEADLESS, GROK_MODEL
+from gearbot.web import WebAgent
+from .gearbot import GearBot
 
 console = Console()
 
@@ -89,10 +91,11 @@ async def main():
         except Exception:
             pass
 
-def run():
+async def run():
     """Run the GearBot agent."""
     try:
-        asyncio.run(main())
+        async with GearBot() as agent:
+            agent.web_agent.start()
     except KeyboardInterrupt:
         console.print("\n[yellow]Ctrl+C detected. Closing cleanly...[/yellow]")
     except Exception as e:
@@ -104,4 +107,4 @@ def run():
         sys.exit(1)
 
 if __name__ == "__main__":
-    run()
+    asyncio.run(run())
