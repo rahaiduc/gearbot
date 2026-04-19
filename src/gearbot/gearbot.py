@@ -17,8 +17,7 @@ class GearBot:
         return self._web_agent
 
     async def __aenter__(self):
-        """Asynchronous context manager entry, starting the browser 
-        and displaying initial information."""
+        """Asynchronous context manager entry for displaying initial information."""
         self.console.print("[bold green]🤖 GearBot - Web Agent Ready![/bold green]")
         self.console.print(f"Model: [cyan]{GROK_MODEL}[/cyan]")
         self.console.print(f"Browser Mode: [yellow]{'Headless' if BROWSER_HEADLESS.lower() == 'true'
@@ -26,12 +25,12 @@ class GearBot:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Asynchronous context manager exit, ensuring the browser is closed cleanly."""
+        """Asynchronous context manager exit, ensuring proper cleanup of resources."""
         self.console = None
         self._web_agent = None
 
     async def start_web_agent(self):
-        """Manually start the WebAgent when you want."""
+        """Start the web agent."""
         if self._web_agent is None:
             self._web_agent = WebAgent(console=self.console)
             await self._web_agent.start()
