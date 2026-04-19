@@ -1,2 +1,2 @@
 """Web module for GearBot."""
-from .agent import WebAgent
+from .web import WebAgent
