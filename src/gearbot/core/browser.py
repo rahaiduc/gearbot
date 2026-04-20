@@ -134,11 +134,18 @@ class BrowserManager:
         Returns:
             A dictionary containing the current page's URL, title, and a content preview.
         """
-        return {
-            "url": self.page.url,
-            "title": await self.page.title(),
-            "preview": (await self.page.content())[:600] + "..."
-        }
+        try:
+            return {
+                "url": self.page.url,
+                "title": await self.page.title(),
+                "preview": (await self.page.content())[:600] + "..."
+            }
+        except Exception:   # Captura TargetClosedError, Navigation, etc.
+            return {
+                "url": "unknown (page closed)",
+                "title": "—",
+                "preview": "Page was closed or navigation in progress"
+            }
 
 
 # Global instance of the BrowserManager to be used across the application

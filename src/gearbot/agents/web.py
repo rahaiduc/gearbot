@@ -18,7 +18,7 @@ class WebAgent:
         """Start the web agent by launching the browser and running the main loop."""
         try:
             await self.browser_manager.start()
-            self.console.print("[green]🖥️  Browser started correctly.[/green]\n")
+            self.console.print("[green]🖥️ Browser started correctly.[/green]\n")
         except Exception as e:
             self.console.print(f"[red]Error starting browser: {e}[/red]")
             return
