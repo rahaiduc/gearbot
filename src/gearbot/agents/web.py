@@ -36,7 +36,7 @@ class WebAgent:
                     self.console.print("[dim]Processing...[/dim]\n")
 
                     last_state = None
-
+                    last_action = None
                     async for state in graph.astream(
                         {"messages": [("user", user_input)]},
                         {"configurable": {"thread_id": "1"}},
@@ -44,17 +44,18 @@ class WebAgent:
                     ):
                         last_state = state
                         current_url = state.get("current_url")
-
-                        self.console.print(Panel(
-                            f"[cyan]URL:[/cyan] {current_url}\n"
-                            f"[cyan]Title:[/cyan] {state.get('page_title') or '—'}\n"
-                            f"[cyan]Last Action:[/cyan] {state.get('last_action') or 'None'}\n"
-                            f"[cyan]Error:[/cyan] {state.get('error') or 'None'}",
-                            title="[bold blue]State Updated[/bold blue]",
-                            border_style="green",
-                            box=box.ROUNDED
-                        ))
-
+                        if last_action != state.get("last_action"):
+                            self.console.print(Panel(
+                                f"[cyan]URL:[/cyan] {current_url}\n"
+                                f"[cyan]Title:[/cyan] {state.get('page_title') or '—'}\n"
+                                f"[cyan]Last Action:[/cyan] {state.get('last_action') or 'None'}\n"
+                                f"[cyan]Error:[/cyan] {state.get('error') or 'None'}",
+                                title="[bold blue]State Updated[/bold blue]",
+                                border_style="green",
+                                box=box.ROUNDED
+                            ))
+                            last_action = state.get("last_action")
+                            
                     if last_state and last_state.get("messages"):
                         ai_message = last_state["messages"][-1].content
                         self.console.print(f"\n[bold magenta]Grok:[/bold magenta] {ai_message}\n")

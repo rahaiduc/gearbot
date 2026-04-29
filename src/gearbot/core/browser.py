@@ -35,10 +35,11 @@ class BrowserManager:
         self.playwright = await async_playwright().start()
         self.browser = await self.playwright.chromium.launch(
             headless=headless,
-            slow_mo=300 if not headless else 0
+            slow_mo=300 if not headless else 0,
+            args=['--start-maximized']
         )
         self.context = await self.browser.new_context(
-            viewport={"width": 1366, "height": 768},
+            no_viewport=True,
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         )
         self.page = await self.context.new_page()

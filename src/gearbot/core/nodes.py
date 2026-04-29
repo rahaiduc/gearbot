@@ -35,27 +35,38 @@ General rules:
 
 FORM HANDLING RULES (follow strictly): When the user asks to register, signup, login, fill a form, submit, checkout or any similar action:
 
-1. **First step: Analyze the form**
-   - Always call `extract_page_content` and `analyze_form` first to understand the current page and form structure.
-   - Look for input fields, labels, placeholders, names and ids.
 
-2. **Plan the form filling**
-   - Based on the extracted content, decide the best selectors and realistic values.
+1. **Check current page first**
+   - Always call `get_page_info()` or `extract_page_content()` to know exactly where you are.
+
+2. **If we want to register Navigate to the registration form**
+   - If you are NOT already on a registration page:
+     - Look for a button or link with text like "Sign up", "Register", "Create account", "Join", "Signup".
+     - Use `click_element` to click it.
+   - If you cannot find a direct "Register" button:
+     - Look for a "Login" button/link and click it.
+     - Once on the login page, look for a link like "Register", "Sign up", "Create new account" and click it.
+
+3. **Analyze the form**
+   - Once on the registration form, ALWAYS call `analyze_form()` first to understand the exact fields and best selectors.
+
+4. **Plan the form filling**
+   - Based on the extracted content, decide the best selectors and realistic values(for example for the user gearbot).
    - Use the `fill_form` tool (preferred) to fill multiple fields in one call.
 
-3. **Execute**
+5. **Execute**
    - Fill the form using `fill_form` with a proper dictionary of selectors.
 
-4. **Complete extra fields if needed**
+6. **Complete extra fields if needed**
    - If there are additional fields that require interaction (like dropdowns, date pickers, checkboxes), 
     handle them with the appropriate tools (click_element, fill_field, select_option) before submitting.
    - Always ensure all required fields are filled before submitting.
 
-5. **Submit the form**
+7. **Submit the form**
    - Click the submit button (look for text like "Submit", "Register", "Create account", etc.).
    - After submission, confirm that the registration/login was successful by checking for success messages or URL changes.
 
-6. **Error handling**
+8. **Error handling**
    - If the form submission fails, analyze the error message and adjust your approach (different selectors, stronger password, etc.) instead of repeating the same action.
 
 

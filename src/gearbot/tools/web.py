@@ -45,27 +45,38 @@ async def extract_page_content(selector: str = "body") -> str:
     text = await browser_manager.extract_text(selector)
     return text[:1500]  # Limitamos para no saturar el contexto
 
+
 @tool
 async def analyze_form() -> str:
-    """Advanced form analysis - extracts all fields AND their option values for selects."""
+    """Advanced form analysis - ONLY analyzes fields INSIDE <form> elements."""
     try:
         result = await browser_manager.page.evaluate("""() => {
             const fields = [];
-            const els = document.querySelectorAll('input, select, textarea');
+            
+            // Prioridad 1: Buscar solo dentro de elementos <form>
+            const forms = document.querySelectorAll('form');
+            let inputs = [];
 
-            els.forEach(el => {
-                if (el.type === 'hidden' || el.type === 'submit') return;
+            if (forms.length > 0) {
+                forms.forEach(form => {
+                    const formInputs = form.querySelectorAll('input, select, textarea, span');
+                    inputs = inputs.concat(Array.from(formInputs));
+                });
+            } else {
+                // Fallback: si no hay <form>, buscar inputs visibles
+                inputs = Array.from(document.querySelectorAll('input, select, textarea, span'));
+            }
 
+            inputs.forEach(el => {
+                if (el.type === 'hidden' || el.type === 'submit' || el.type === 'button') return;
+
+                // Buscar label asociado
                 let label = '';
                 if (el.id) {
                     const lbl = document.querySelector(`label[for="${el.id}"]`);
                     if (lbl) label = lbl.innerText.trim();
                 }
 
-                let bestSelector = null;
-                if (el.name) bestSelector = `[name="${el.name}"]`;
-                else if (el.id) bestSelector = `#${el.id}`;
-                else if (el.placeholder) bestSelector = `[placeholder="${el.placeholder}"]`;
 
                 let options = [];
                 if (el.tagName.toLowerCase() === 'select') {
@@ -79,32 +90,35 @@ async def analyze_form() -> str:
 
                 fields.push({
                     type: el.tagName.toLowerCase(),
+                    class: el.className || null,
                     name: el.name || null,
                     id: el.id || null,
                     placeholder: el.placeholder || null,
                     label: label || null,
+                    value: el.value || null,
+                    text: el.innerText ? el.innerText.trim() : null,
                     required: el.required || false,
                     multiple: !!el.multiple,
-                    best_selector: bestSelector,
                     options: options
                 });
             });
+
             return fields;
         }""");
 
-        lines = ["**📋 Advanced Form Analysis:**\n"]
+        lines = ["**📋 Focused Form Analysis (only form fields):**\n"]
         for f in result:
             extra = " [SELECT]" if f['type'] == 'select' else ""
             if f.get('multiple'): 
                 extra += " [MULTIPLE]"
 
             lines.append(
-                f"• **{f['type']}{extra}** | Label: '{f['label'] or '—'}' | "
-                f"Name: {f['name'] or '—'} | Placeholder: {f['placeholder'] or '—'} | "
-                f"**Best selector:** `{f['best_selector']}`"
+                f"• **{f['type']}{extra}** | Class: '{f.get('class') or '—'}' |Label: '{f.get('label') or '—'}' | "
+                f"Name: {f.get('name') or '—'} | Placeholder: {f.get('placeholder') or '—'} | "
+                f"Value: {f.get('value') or '—'} | Text: {f.get('text') or '—'}" 
             )
 
-            if f.get('options'):
+            if f.get('options') and len(f['options']) > 0:
                 lines.append("   Options:")
                 for opt in f['options']:
                     lines.append(f"     • value=`{opt['value']}` → text=`{opt['text']}`")
@@ -113,6 +127,8 @@ async def analyze_form() -> str:
 
     except Exception as e:
         return f"❌ Error analyzing form: {str(e)}"
+
+
 
 @tool
 async def fill_form(fields: dict, description: str = "") -> str:
