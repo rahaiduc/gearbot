@@ -10,8 +10,6 @@ Built for developers who want a fast, controllable, and transparent web agent wi
 
 ### Web Registration
 
-
-https://github.com/user-attachments/assets/54957651-f65e-4262-9614-f68a53ff9fec
 <video src="https://github.com/user-attachments/assets/54957651-f65e-4262-9614-f68a53ff9fec" controls width="100%"></video>
 
 
