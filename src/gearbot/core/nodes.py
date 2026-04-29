@@ -25,7 +25,7 @@ General rules:
 - Avoid repeating the same tool more than 2 times in a row.
 - Keep total tool calls low per request.
 - You can choose realistic values yourself unless the user specifies otherwise.
-- First explore the page (use get_page_info or extract_page_content) to understand the form structure.
+- First explore the page (extract_page_content and analyze_form) to understand the form structure.
 - Use the best possible selectors.
 - Handle any kind of form: registration, login, contact, checkout, surveys, etc.
 - If something fails, try a different approach instead of repeating the same action.
@@ -36,7 +36,7 @@ General rules:
 FORM HANDLING RULES (follow strictly): When the user asks to register, signup, login, fill a form, submit, checkout or any similar action:
 
 1. **First step: Analyze the form**
-   - Always call `extract_page_content` (or `get_page_info`) first to understand the current page and form structure.
+   - Always call `extract_page_content` and `analyze_form` first to understand the current page and form structure.
    - Look for input fields, labels, placeholders, names and ids.
 
 2. **Plan the form filling**
@@ -48,7 +48,7 @@ FORM HANDLING RULES (follow strictly): When the user asks to register, signup, l
 
 4. **Complete extra fields if needed**
    - If there are additional fields that require interaction (like dropdowns, date pickers, checkboxes), 
-    handle them with the appropriate tools (click_element, fill_field) before submitting.
+    handle them with the appropriate tools (click_element, fill_field, select_option) before submitting.
    - Always ensure all required fields are filled before submitting.
 
 5. **Submit the form**
